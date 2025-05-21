@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>秦仪嫚小娇妻的爱心挑战</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            love: {
+              light: '#FFD7E5',
+              DEFAULT: '#FF6B9B',
+              dark: '#FF1493'
+            }
+          },
+          fontFamily: {
+            love: ['"Comic Sans MS"', 'cursive', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .heart-beat {
+        animation: heartBeat 0.5s infinite alternate;
+      }
+      .float {
+        animation: float 3s ease-in-out infinite;
+      }
+      .scale-in {
+        animation: scaleIn 0.3s ease-out forwards;
+      }
+      .fade-out {
+        animation: fadeOut 0.5s ease-out forwards;
+      }
+      .score-popup {
+        animation: scorePopup 1s ease-out forwards;
+      }
+    }
+    
+    @keyframes heartBeat {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.05); }
+    }
+    
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-15px); }
+      100% { transform: translateY(0px); }
+    }
+    
+    @keyframes scaleIn {
+      0% { transform: scale(0); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    
+    @keyframes fadeOut {
+      0% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(1.2); opacity: 0; }
+    }
+    
+    @keyframes scorePopup {
+      0% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(-30px); opacity: 0; }
+    }
+    
+    .heart {
+      position: absolute;
+      cursor: pointer;
+      transition: transform 0.2s;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    
+    .heart:hover {
+      transform: scale(1.2);
+    }
+    
+    .score-popup {
+      position: absolute;
+      font-weight: bold;
+      color: white;
+      text-shadow: 0 0 3px rgba(0,0,0,0.5);
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-love-light to-white min-h-screen font-love overflow-hidden">
+  <!-- 游戏容器 -->
+  <div id="game-container" class="relative w-full h-screen flex flex-col items-center justify-center">
+    
+    <!-- 开始界面 -->
+    <div id="start-screen" class="absolute inset-0 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm z-30 scale-in">
+      <div class="text-center p-8 rounded-2xl bg-white shadow-2xl max-w-md w-full mx-4 transform transition-all duration-500 hover:shadow-love/30">
+        <h1 class="text-[clamp(2.5rem,8vw,4rem)] font-bold text-transparent bg-clip-text bg-gradient-to-r from-love-dark to-love heart-beat mb-6">
+          秦仪嫚小娇妻的<br>爱心挑战
+        </h1>
+        <p class="text-gray-600 text-lg mb-8">媳妇呀，要在60秒内点击尽可能多的爱心，看看你能获得多少分！</p>
+        <button id="start-button" class="bg-gradient-to-r from-love-dark to-love text-white py-4 px-10 rounded-full text-xl font-semibold shadow-lg hover:shadow-xl transform transition-all duration-300 hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-love-dark">
+          开始游戏 <i class="fa fa-heart ml-2"></i>
+        </button>
+      </div>
+    </div>
+    
+    <!-- 游戏界面 -->
+    <div id="game-screen" class="absolute inset-0 hidden">
+      <!-- 状态栏 -->
+      <div class="fixed top-4 left-4 right-4 flex justify-between items-center z-20">
+        <div class="bg-white/80 backdrop-blur-sm rounded-full px-6 py-3 shadow-lg">
+          <span class="text-love-dark font-bold text-xl">分数: <span id="score">0</span></span>
+        </div>
+        <div class="bg-white/80 backdrop-blur-sm rounded-full px-6 py-3 shadow-lg">
+          <span class="text-love-dark font-bold text-xl">时间: <span id="time">60</span>s</span>
+        </div>
+      </div>
+      
+      <!-- 爱心生成区域 -->
+      <div id="heart-area" class="absolute inset-0 z-10"></div>
+    </div>
+    
+    <!-- 结束界面 -->
+    <div id="end-screen" class="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-40 hidden">
+      <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 text-center transform transition-all duration-500 scale-in">
+        <h2 class="text-[clamp(1.8rem,5vw,2.5rem)] font-bold text-love-dark mb-4">啊 秦仪嫚小宝贝，挑战结束啦！</h2>
+        <p class="text-gray-600 text-lg mb-2">小娇妻 你的得分</p>
+        <p class="text-[clamp(2rem,8vw,3.5rem)] font-bold text-love-dark mb-6 heart-beat" id="final-score">0</p>
+        <button id="restart-button" class="bg-gradient-to-r from-love-dark to-love text-white py-4 px-10 rounded-full text-xl font-semibold shadow-lg hover:shadow-xl transform transition-all duration-300 hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-love-dark">
+          再玩一次吧 小可耐 <i class="fa fa-repeat ml-2"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 游戏配置
+    const config = {
+      spawnInterval: 1000,      // 爱心生成间隔(毫秒)
+      minSpawnInterval: 300,    // 最小生成间隔
+      maxSpawnInterval: 1500,   // 最大生成间隔
+      gameTime: 60,             // 游戏时间(秒)
+      pointsPerHeart: 10,       // 每个爱心的分数
+      heartSize: {              // 爱心尺寸范围(像素)
+        min: 30,
+        max: 80
+      }
+    };
+    
+    // 游戏状态
+    const gameState = {
+      score: 0,
+      timeLeft: config.gameTime,
+      isPlaying: false,
+      hearts: [],
+      spawnTimer: null,
+      gameTimer: null
+    };
+    
+    // DOM元素
+    const startScreen = document.getElementById('start-screen');
+    const gameScreen = document.getElementById('game-screen');
+    const endScreen = document.getElementById('end-screen');
+    const startButton = document.getElementById('start-button');
+    const restartButton = document.getElementById('restart-button');
+    const scoreElement = document.getElementById('score');
+    const timeElement = document.getElementById('time');
+    const finalScoreElement = document.getElementById('final-score');
+    const heartArea = document.getElementById('heart-area');
+    
+    // 开始游戏
+    startButton.addEventListener('click', startGame);
+    restartButton.addEventListener('click', restartGame);
+    
+    // 生成随机颜色的爱心
+    function getRandomHeartColor() {
+      const colors = [
+        '#FF6B9B', '#FF85A2', '#FF99B4', '#FFB6C1', 
+        '#FFC2CB', '#FFD1DC', '#FFD7E5', '#FF1493'
+      ];
+      return colors[Math.floor(Math.random() * colors.length)];
+    }
+    
+    // 生成随机位置
+    function getRandomPosition() {
+      const heartAreaRect = heartArea.getBoundingClientRect();
+      
+      // 随机大小
+      const size = config.heartSize.min + Math.random() * (config.heartSize.max - config.heartSize.min);
+      
+      // 确保爱心不会超出屏幕
+      const maxX = heartAreaRect.width - size;
+      const maxY = heartAreaRect.height - size;
+      
+      const x = Math.floor(Math.random() * maxX);
+      const y = Math.floor(Math.random() * maxY);
+      
+      return { x, y, size };
+    }
+    
+    // 创建爱心元素
+    function createHeart() {
+      const heart = document.createElement('div');
+      const { x, y, size } = getRandomPosition();
+      const color = getRandomHeartColor();
+      
+      // 设置爱心样式
+      heart.className = 'heart';
+      heart.style.width = `${size}px`;
+      heart.style.height = `${size}px`;
+      heart.style.left = `${x}px`;
+      heart.style.top = `${y}px`;
+      heart.style.color = color;
+      
+      // 使用Font Awesome创建爱心
+      heart.innerHTML = `<i class="fa fa-heart text-[${size}px]"></i>`;
+      
+      // 添加浮动动画
+      const floatDuration = 3 + Math.random() * 4; // 3-7秒
+      heart.style.animation = `float ${floatDuration}s ease-in-out infinite`;
+      heart.style.animationDelay = `${Math.random() * 2}s`;
+      
+      // 添加点击事件
+      heart.addEventListener('click', function() {
+        // 增加分数
+        increaseScore();
+        
+        // 显示分数弹出动画
+        showScorePopup(x + size/2, y + size/2);
+        
+        // 移除爱心
+        removeHeart(heart);
+      });
+      
+      // 添加到游戏区域
+      heartArea.appendChild(heart);
+      gameState.hearts.push(heart);
+      
+      // 如果生成的爱心太多，移除最早的一个
+      if (gameState.hearts.length > 15) {
+        removeHeart(gameState.hearts[0]);
+      }
+    }
+    
+    // 移除爱心
+    function removeHeart(heart) {
+      if (heart && heart.parentNode === heartArea) {
+        // 添加消失动画
+        heart.classList.add('fade-out');
+        
+        // 动画结束后移除元素
+        setTimeout(() => {
+          if (heart.parentNode === heartArea) {
+            heartArea.removeChild(heart);
+          }
+          const index = gameState.hearts.indexOf(heart);
+          if (index !== -1) {
+            gameState.hearts.splice(index, 1);
+          }
+        }, 500);
+      }
+    }
+    
+    // 增加分数
+    function increaseScore() {
+      gameState.score += config.pointsPerHeart;
+      scoreElement.textContent = gameState.score;
+      
+      // 添加分数动画效果
+      scoreElement.classList.add('heart-beat');
+      setTimeout(() => {
+        scoreElement.classList.remove('heart-beat');
+      }, 300);
+    }
+    
+    // 显示分数弹出动画
+    function showScorePopup(x, y) {
+      const scorePopup = document.createElement('div');
+      scorePopup.className = 'score-popup';
+      scorePopup.textContent = `+${config.pointsPerHeart}`;
+      scorePopup.style.left = `${x}px`;
+      scorePopup.style.top = `${y}px`;
+      scorePopup.style.fontSize = `${14 + Math.random() * 8}px`;
+      
+      // 随机颜色
+      const colors = ['#FF6B9B', '#FF85A2', '#FF99B4', '#FF1493'];
+      scorePopup.style.color = colors[Math.floor(Math.random() * colors.length)];
+      
+      heartArea.appendChild(scorePopup);
+      
+      // 动画结束后移除
+      setTimeout(() => {
+        if (scorePopup.parentNode === heartArea) {
+          heartArea.removeChild(scorePopup);
+        }
+      }, 1000);
+    }
+    
+    // 开始生成爱心
+    function startSpawningHearts() {
+      // 随机生成间隔，随时间减少
+      const timeFactor = Math.max(0.3, gameState.timeLeft / config.gameTime);
+      const spawnInterval = config.minSpawnInterval + 
+        Math.random() * (config.maxSpawnInterval - config.minSpawnInterval) * timeFactor;
+      
+      createHeart();
+      
+      // 设置下一个爱心生成时间
+      gameState.spawnTimer = setTimeout(startSpawningHearts, spawnInterval);
+    }
+    
+    // 更新游戏时间
+    function updateGameTime() {
+      gameState.timeLeft--;
+      timeElement.textContent = gameState.timeLeft;
+      
+      // 添加时间动画效果
+      timeElement.classList.add('heart-beat');
+      setTimeout(() => {
+        timeElement.classList.remove('heart-beat');
+      }, 300);
+      
+      // 时间到，结束游戏
+      if (gameState.timeLeft <= 0) {
+        endGame();
+      }
+    }
+    
+    // 开始游戏
+    function startGame() {
+      // 重置游戏状态
+      gameState.score = 0;
+      gameState.timeLeft = config.gameTime;
+      gameState.isPlaying = true;
+      gameState.hearts = [];
+      
+      // 更新UI
+      scoreElement.textContent = gameState.score;
+      timeElement.textContent = gameState.timeLeft;
+      
+      // 隐藏开始界面，显示游戏界面
+      startScreen.classList.add('hidden');
+      gameScreen.classList.remove('hidden');
+      
+      // 清空爱心区域
+      heartArea.innerHTML = '';
+      
+      // 开始生成爱心
+      startSpawningHearts();
+      
+      // 设置游戏计时器
+      gameState.gameTimer = setInterval(updateGameTime, 1000);
+    }
+    
+    // 结束游戏
+    function endGame() {
+      gameState.isPlaying = false;
+      
+      // 清除计时器
+      clearTimeout(gameState.spawnTimer);
+      clearInterval(gameState.gameTimer);
+      
+      // 移除所有爱心
+      gameState.hearts.forEach(heart => {
+        if (heart.parentNode === heartArea) {
+          heartArea.removeChild(heart);
+        }
+      });
+      gameState.hearts = [];
+      
+      // 显示结束界面
+      finalScoreElement.textContent = gameState.score;
+      endScreen.classList.remove('hidden');
+    }
+    
+    // 重新开始游戏
+    function restartGame() {
+      endScreen.classList.add('hidden');
+      startGame();
+    }
+  </script>
+</body>
+</html>
